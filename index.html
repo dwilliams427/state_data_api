@@ -4,7 +4,61 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>State Data API</title>
   </head>
-  <body></body>
+  <body>
+    <h1 id="ipText">STATE DATA API</h1>
+    <h5>State data goes here...</h5>
+    <style>
+      body {
+        background-color: #ffcc00;
+      }
+
+      h1 {
+        font-family: sans-serif;
+        text-align: center;
+        padding-top: 140px;
+        font-size: 60px;
+        margin: -15px;
+      }
+
+      h5 {
+        font-family: sans-serif;
+        color: #907400;
+        text-align: center;
+      }
+      #container {
+        align-content: center;
+        justify-content: center;
+        position: relative;
+        width: 500px;
+        height: 300px;
+      }
+    </style>
+
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/d3/3.5.3/d3.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/topojson/1.6.9/topojson.min.js"></script>
+    <script src="http://datamaps.github.io/scripts/datamaps.usa.min.js?v=1"></script>
+    <script type="text/app.js"></script>
+    <div id="container"></div>
+    <script>
+      var map = new Datamap({
+        element: document.getElementById("container"),
+        scope: "usa",
+        fills: {
+          defaultFill: "rgba(23,48,210,0.9)", // Any hex, color name or rgb/rgba value
+        },
+        geographyConfig: {
+          highlightOnHover: true,
+          popupOnHover: true,
+        },
+        data: {
+          USA: {
+            fillKey: "MEDIUM",
+            numberOfThings: 10381,
+          },
+        },
+      });
+    </script>
+  </body>
 </html>
