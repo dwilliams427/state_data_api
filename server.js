@@ -1,29 +1,31 @@
-// var fs = require('fs');
-// var csv = require('csv-parser');
-const {state_data} = require('./csv_reader.js');
-const {abbrevs} = require('./csv_reader.js');
+var fs = require('fs');
+var csv = require('csv-parser');
+// const {state_data} = require('./csv_reader.js');
+// const {abbrevs} = require('./csv_reader.js');
 const path = require('path');
 const express = require("express");
 const app = express();
 
-// let abbrevs = [];
-// fs.createReadStream('abbreviations.csv')
-//   .pipe(csv())
-//   .on('data', (data) => {
-//     abbrevs.push(data)
-//     console.log("abbrevs data[0]:===============================================", data)
-//   })
-//   .on('end', () => {
-//     console.log("abbrevs:===================================================", abbrevs);
-//   });
+//FORMER CSV PARSING CODE
+let abbrevs = [];
+fs.createReadStream('abbreviations.csv')
+  .pipe(csv())
+  .on('data', (data) => {
+    abbrevs.push(data)
+    // console.log("abbrevs data[0]:===============================================", data)
+  })
+  .on('end', () => {
+    // console.log("abbrevs:===================================================", abbrevs);
+  });
 
-// let state_data = [];
-// fs.createReadStream('state_data.csv')
-//   .pipe(csv())
-//   .on('data', (data) => state_data.push(data))
-//   .on('end', () => {
-//     console.log("state_data:===================================================", state_data[0]["state"]);
-//   });
+let state_data = [];
+fs.createReadStream('state_data.csv')
+  .pipe(csv())
+  .on('data', (data) => state_data.push(data))
+  .on('end', () => {
+    // console.log("state_data:===================================================", state_data[0]["state"]);
+  });
+
 
 //RENDER HTML
 app.get('/', function(req, res) {
@@ -31,14 +33,16 @@ app.get('/', function(req, res) {
 });
 
   //This will return all the state/abbreviations
+let all_data = [];
 app.get("/states", function(req, res) {
   //HERE WE NEED TO ADD STATE NAME AND ABBREVS INTO ONE ARRAY
   //FOR EACH ITEM IN ARRAY, CREATE A NEW HASH --> hash[state_data["state"]]= abbrevs["Code"]
     //THEN ADD THIS OBJECT/HASH TO ARRAY
   let index = 0;
-  let all_data = []
   let state = "";
   let abbrev = ""
+  console.log(`state data: ${state_data}`)
+  console.log(`abbrevs: ${abbrevs}`)
   while (index < state_data.length){
     state = state_data[index]["state"];
     abbrev = abbrevs[index]["Code"];
