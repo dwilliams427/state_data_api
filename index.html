@@ -5,10 +5,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>State Data API</title>
-  </head>
-  <body>
-    <h1 id="ipText">STATE DATA API</h1>
-    <h5>State data goes here...</h5>
     <style>
       body {
         background-color: #ffcc00;
@@ -31,34 +27,132 @@
         align-content: center;
         justify-content: center;
         position: relative;
-        width: 500px;
-        height: 300px;
+        width: 70%;
+        height: 600px;
+        margin-left: auto;
+        margin-right: auto;
       }
     </style>
+  </head>
+  <body>
+    <h1 id="ipText">STATE DATA API</h1>
+    <div id="container"></div>
 
     <script src="http://cdnjs.cloudflare.com/ajax/libs/d3/3.5.3/d3.min.js"></script>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/topojson/1.6.9/topojson.min.js"></script>
     <script src="http://datamaps.github.io/scripts/datamaps.usa.min.js?v=1"></script>
     <script type="text/app.js"></script>
-    <div id="container"></div>
     <script>
-      var map = new Datamap({
-        element: document.getElementById("container"),
-        scope: "usa",
-        fills: {
-          defaultFill: "rgba(23,48,210,0.9)", // Any hex, color name or rgb/rgba value
-        },
-        geographyConfig: {
-          highlightOnHover: true,
-          popupOnHover: true,
-        },
-        data: {
-          USA: {
-            fillKey: "MEDIUM",
-            numberOfThings: 10381,
-          },
-        },
-      });
+      const Http = new XMLHttpRequest();
+      // TODO: This url should not point to a test endpoint
+      const url='http://localhost:3000/states-test';
+      Http.open("GET", url);
+      Http.send();
+
+      // TODO: I wish this could be imported or something. It's wierd for it to be here in this script
+      const state_abbrevs = {
+          "AL": "Alabama",
+          "AK": "Alaska",
+          "AS": "American Samoa",
+          "AZ": "Arizona",
+          "AR": "Arkansas",
+          "CA": "California",
+          "CO": "Colorado",
+          "CT": "Connecticut",
+          "DE": "Delaware",
+          "DC": "District of Columbia",
+          "FM": "Federated States Of Micronesia",
+          "FL": "Florida",
+          "GA": "Georgia",
+          "GU": "Guam",
+          "HI": "Hawaii",
+          "ID": "Idaho",
+          "IL": "Illinois",
+          "IN": "Indiana",
+          "IA": "Iowa",
+          "KS": "Kansas",
+          "KY": "Kentucky",
+          "LA": "Louisiana",
+          "ME": "Maine",
+          "MH": "Marshall Islands",
+          "MD": "Maryland",
+          "MA": "Massachusetts",
+          "MI": "Michigan",
+          "MN": "Minnesota",
+          "MS": "Mississippi",
+          "MO": "Missouri",
+          "MT": "Montana",
+          "NE": "Nebraska",
+          "NV": "Nevada",
+          "NH": "New Hampshire",
+          "NJ": "New Jersey",
+          "NM": "New Mexico",
+          "NY": "New York",
+          "NC": "North Carolina",
+          "ND": "North Dakota",
+          "MP": "Northern Mariana Islands",
+          "OH": "Ohio",
+          "OK": "Oklahoma",
+          "OR": "Oregon",
+          "PW": "Palau",
+          "PA": "Pennsylvania",
+          "PR": "Puerto Rico",
+          "RI": "Rhode Island",
+          "SC": "South Carolina",
+          "SD": "South Dakota",
+          "TN": "Tennessee",
+          "TX": "Texas",
+          "UT": "Utah",
+          "VT": "Vermont",
+          "VI": "Virgin Islands",
+          "VA": "Virginia",
+          "WA": "Washington",
+          "WV": "West Virginia",
+          "WI": "Wisconsin",
+          "WY": "Wyoming"
+      }
+
+      /* This function came from 
+      * https://stackoverflow.com/questions/9907419/how-to-get-a-key-in-a-javascript-object-by-its-value
+      * It finds the key for an entry in a hash. We use this to get the
+      * abbreviation for a state.*/ 
+      function getKeyByValue(object, value) {
+        return Object.keys(object).find(key => object[key] === value);
+      }
+
+      /* Every request goes through multiple ready states and statues so
+      we have to wait until the request is finished. We do that by checking if
+      readyState is 4 and status is 200.*/
+      Http.onreadystatechange = (e) => {
+        if(Http.readyState === 4 && Http.status === 200){
+          // Since we get back JSON and want to manipulate it further, we turn it into a regular object 
+          const parsedData = JSON.parse(Http.response);
+
+          // The data has to be transformed into the data format that dataMap expects
+          const transformedData = {}
+          parsedData.forEach((state_data) => {
+            const state_abbreviation = getKeyByValue(state_abbrevs, state_data["state"])
+            transformedData[state_abbreviation] = { medianHouseholdIncome: state_data["median_household_income"] };
+          });
+
+          var map = new Datamap({
+            element: document.getElementById("container"),
+            scope: "usa",
+            fills: {
+              defaultFill: "rgba(23,48,210,0.9)", // Any hex, color name or rgb/rgba value
+            },
+            data: transformedData,
+            geographyConfig: {
+              popupTemplate: function(geo, data) {
+                  return ['<div class="hoverinfo"><strong>',
+                          'Number of things in ' + geo.properties.name,
+                          ': ' + data.medianHouseholdIncome,
+                          '</strong></div>'].join('');
+              }
+            },
+          });
+        }
+      }
     </script>
   </body>
 </html>
